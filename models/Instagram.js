@@ -23,6 +23,18 @@ const instagramSchema = new Schema({
     countLikes: {
         type: Number
     },
+    active: {
+        type: Boolean,
+        default: true
+    },
+    tested: {
+        type: Boolean,
+        default: false
+    },
+    private: {
+        type: Boolean,
+        default: true
+    },
     date: {
         type: Date,
         default: Date.now

@@ -11,7 +11,7 @@ const instagram = {
 
     initialize: async (mobile = true) => {
         const options = {};
-        options.headless = process.env.NODE_ENV === 'production';
+        options.headless = false;
         if (mobile) {
             options.defaultViewport = {
                 width: 320,
@@ -51,7 +51,7 @@ const instagram = {
         await instagram.page.type('input[name="password"]', password, {delay: 10});
         await instagram.page.click('button[type="submit"]');
 
-        await instagram.page.waitFor(5000);
+        await instagram.page.waitForXPath("//button[contains(text(),'Save Info')]");
         await instagram.page.screenshot({path: 'temp/afterLoginPage.png'});
     },
 
@@ -134,6 +134,7 @@ const instagram = {
 
     liked: async (tags = [], count = 9) => {
         if(tags.length === 0) return false;
+
         for(let tag of tags) {
             await instagram.page.goto(`${BASE_URL}/explore/tags/${tag}/`);
             await instagram.page.waitForSelector("article > div img");
@@ -147,9 +148,12 @@ const instagram = {
                 await image.click();
 
                 await instagram.page.waitForSelector('button[aria-hidden="true"]');
-                await instagram.page.waitForSelector('span svg[aria-label="Like"]');
+                await instagram.page.waitForSelector('span svg[aria-label="Comment"]');
 
-                await instagram.page.click('span svg[aria-label="Like"]');
+                if (await instagram.page.$('span svg[aria-label="Like"]')) {
+                  await instagram.page.click('span svg[aria-label="Like"]');
+                }
+
                 await instagram.page.click('button svg[aria-label="Close"]');
             }
         }
@@ -157,6 +161,7 @@ const instagram = {
 
     close: async () => {
         await instagram.browser.close();
+        await instagram.page.waitFor(90000);
     }
 }
 
