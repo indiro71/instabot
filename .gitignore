@@ -1,4 +1,4 @@
 node_modules
-temp
+temp/*
 .idea/
 keys/keys.dev.js
