@@ -171,7 +171,7 @@ class Instagram {
                 await image.click();
 
                 await this.page.waitForSelector('button[aria-hidden="true"]');
-                await this.page.waitForSelector('span svg[aria-label="Comment"]');
+                await this.page.waitForSelector('button svg[aria-label="Share Post"]');
 
                 if (await this.page.$('span svg[aria-label="Like"]')) {
                     await this.page.click('span svg[aria-label="Like"]');

@@ -38,7 +38,7 @@ const test = async () => {
         const accounts = await Instagram.find();
 
         for (const account of accounts) {
-        	if (account.name && account.password && account.tagLikes.length > 0 && account.tested) {
+        	if (account.name && account.password && account.tagLikes.length > 0 && account.active) {
                 const inst = new instagram(account);
                 await inst.clickLikes();
             }
