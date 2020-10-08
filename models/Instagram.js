@@ -35,6 +35,9 @@ const instagramSchema = new Schema({
         type: Boolean,
         default: true
     },
+    stats: {
+        type: Array
+    },
     date: {
         type: Date,
         default: Date.now
