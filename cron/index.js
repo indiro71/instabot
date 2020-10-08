@@ -1,1 +1,2 @@
 require('./instagram');
+require('./instastat');
