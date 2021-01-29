@@ -29,7 +29,11 @@
     "cron": "^1.8.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "log4js": "^6.3.0",
     "mongoose": "^5.10.7",
-    "puppeteer": "^5.3.1"
+    "needle": "^2.5.2",
+    "node-selectel-manager": "^1.0.1",
+    "puppeteer": "^5.3.1",
+    "random": "^2.2.0"
   }
 }

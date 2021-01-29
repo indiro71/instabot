@@ -1,2 +1,1 @@
-require('./instagram');
 require('./instastat');
