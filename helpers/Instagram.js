@@ -114,11 +114,9 @@ class Instagram {
                 logger.info('login end');
 
                 await this.wait(3000);
-                await this.closePage();
             }
         } catch (e) {
             logger.info('login error', e);
-            await this.closePage();
         }
     }
 
@@ -177,7 +175,7 @@ class Instagram {
 
             const filePath = 'temp/newpost.jpg';
             const file = fs.createWriteStream(filePath);
-            const request = http.get(imgUrl.replace('https', 'http'), function (response) {
+            http.get(imgUrl.replace('https', 'http'), function (response) {
                 response.pipe(file);
             });
 
@@ -214,6 +212,7 @@ class Instagram {
             await this.closePage();
         }
     }
+
     async getLinks() {
         if (this.tagLikes.length === 0) return false;
         if (this.mobile) await this.setDesktop();
@@ -263,69 +262,92 @@ class Instagram {
         }
     }
 
-    async liked() {
-        if (this.tagLikes.length === 0) return false;
-        if (this.mobile) await this.setDesktop();
-        await this.newPage();
-
-
-        try {
-            for (let tag of this.tagLikes) {
-                await this.page.goto(`${this.base_url}/explore/tags/${tag}/`);
-                await this.page.waitForSelector('article > div img');
-
-                await this.wait(2000, 10000);
-
-                // const images = await instagram.page.$$('article div img[decoding="auto"]'); // top posts
-                const images = await this.page.$$('article>div:nth-child(3) img[decoding="auto"]');    //most recent posts
-
-
-                for (let i = 0; i < this.countLikes; i++) {
-                    let image = images[i];
-
-                    await image.click();
-
-                    await this.wait(2000, 5000);
-
-                    if (!await this.page.$('button[aria-hidden="true"]')) {
-                        await this.page.screenshot({ path: 'temp/hiddenError(' + i + ').png' });
-                        logger.error('Instagram error with button[aria-hidden="true"]');
-                        break;
-                    }
-
-                    await this.wait(2000, 5000);
-
-                    if (random.int(1, 7) !== 1) {
-                        if (await this.page.$('span svg[aria-label="Like"]')) {
-                            await this.page.click('span svg[aria-label="Like"]');
-                        }
-                    }
-
-                    await this.wait(2000, 5000);
-
-                    if (await this.page.$('button svg[aria-label="Close"]')) {
-                        await this.page.click('button svg[aria-label="Close"]');
-                    } else {
-                        break;
-                    }
-
-                    await this.wait(2000, 5000);
-                }
-            }
-            logger.info('Likes clicked');
-            await this.page.screenshot({ path: 'temp/afterLike.png' });
-            await this.closePage();
-        } catch (e) {
-            await this.page.screenshot({ path: 'temp/likesError.png' });
-            logger.info('Likes error', e);
-            await this.closePage();
-        }
-    }
-
     async wait(min = 0, max = 0) {
         if (min === 0) return false;
 
         await this.page.waitFor(max > 0 ? random.int(min, max) : min);
+    }
+
+    async goToTagPage(tag) {
+        try {
+            await this.page.type('input[placeholder="Search"]', `#${tag}`, { delay: 50 });
+            await this.wait(2000, 10000);
+
+            await this.page.keyboard.press('Enter');
+            await this.wait(2000, 10000);
+            await this.page.keyboard.press('Enter');
+            await this.page.waitForSelector('article > div img');
+
+            await this.wait(2000, 10000);
+        } catch (e) {
+            await this.page.screenshot({ path: 'temp/goToTagPage.png' });
+            logger.info('goToTagPage', e);
+        }
+    }
+
+    async likeTagImages() {
+        try {
+            // const images = await instagram.page.$$('article div img[decoding="auto"]'); // top posts
+            const images = await this.page.$$('article>div:nth-child(3) img[decoding="auto"]');    //most recent posts
+
+            for (let i = 0; i < this.countLikes; i++) {
+                let image = images[i];
+
+                await image.click();
+
+                await this.wait(2000, 5000);
+
+                if (!await this.page.$('button[aria-hidden="true"]')) {
+                    await this.page.screenshot({ path: 'temp/hiddenError(' + i + ').png' });
+                    logger.error('Instagram error with button[aria-hidden="true"]');
+                    break;
+                }
+
+                await this.wait(2000, 5000);
+
+                if (random.int(1, 7) !== 1) {
+                    if (await this.page.$('span svg[aria-label="Like"]')) {
+                        await this.page.click('span svg[aria-label="Like"]');
+                    }
+                }
+
+                await this.wait(2000, 5000);
+
+                if (await this.page.$('button svg[aria-label="Close"]')) {
+                    await this.page.click('button svg[aria-label="Close"]');
+                } else {
+                    break;
+                }
+
+                await this.wait(2000, 5000);
+            }
+        } catch (e) {
+            await this.page.screenshot({ path: 'temp/likeTagImages.png' });
+            logger.info('likeTagImages', e);
+        }
+
+    }
+
+    async liked() {
+        if (this.tagLikes.length === 0) return false;
+        if (this.mobile) await this.setDesktop();
+
+        try {
+            for (let tag of this.tagLikes) {
+                await  this.goToTagPage(tag);
+
+                const date = new Date();
+                const hour = date.getHours();
+                if (hour > 8) {
+                    await this.likeTagImages();
+                }
+            }
+            logger.info('Likes clicked');
+            await this.page.screenshot({ path: 'temp/afterLike.png' });
+        } catch (e) {
+            await this.page.screenshot({ path: 'temp/likedError.png' });
+            logger.info('liked error', e);
+        }
     }
 
     async closeBrowser() {
