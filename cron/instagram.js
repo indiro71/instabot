@@ -3,7 +3,6 @@ const random = require('random');
 const log4js = require("log4js");
 const Instagram = require('../models/Instagram');
 const instagram = require('../helpers/Instagram');
-const {uploadLocalFile} = require("../helpers/storage");
 const logger = log4js.getLogger('instaCron');
 
 
@@ -20,18 +19,14 @@ const initInst = async () => {
 
         let worked = false;
 
-        new CronJob('*/13 * * * *', async function () {
-            const date = new Date();
-            const hour = date.getHours();
-            if (hour < 8) return;
-
+        new CronJob('*/12 * * * *', async function () {
             try {
                 const randomInt = random.int(0, 8);
                 logger.info('Instagram random init - ' + randomInt);
                 if (randomInt === 5 && !worked) {
                     worked = true;
                     logger.info('Start like clicked');
-                    await inst.getLinks();
+                    await inst.liked();
                     worked = false;
                     // await uploadLocalFile('/temp/afterLike.png', 'instagram');
                     // await uploadLocalFile('/temp/beforeLike.png', 'instagram');
